@@ -69,7 +69,7 @@ public class RetrievalExperimentsApp {
   private static String trecEval(String name, String measure) {
     Command obj = new Command();
 
-    String command = "/Users/teofili/programs/trec_eval.9.0/trec_eval /Users/teofili/dev/bbuzz18-nsf/data/cacm/cacm.qrels /Users/teofili/dev/bbuzz18-nsf/data/cacm/" + name.substring(0, name.length() - 4) + ".res -m " + measure;
+    String command = "trec_eval data/cacm/cacm.qrels data/cacm/" + name.substring(0, name.length() - 4) + ".res -m " + measure;
 
     String output = obj.execute(command);
 
