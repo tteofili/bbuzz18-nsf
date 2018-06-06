@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<retrievalParams>
+    <indexName>index</indexName>
+    <queryFile>data/cacm/title.query</queryFile>
+    <maxResults>100</maxResults>
+    <model>classic</model>
+    <resultFile>data/cacm/classic.res</resultFile>
+    <tokenFilterFile>src/test/resources/params/analysis/simple.xml</tokenFilterFile>
+    <runTag>classic</runTag>
+</retrievalParams>
