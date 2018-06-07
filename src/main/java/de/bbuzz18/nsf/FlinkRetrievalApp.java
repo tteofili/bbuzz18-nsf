@@ -35,7 +35,7 @@ public class FlinkRetrievalApp {
 
     // Create a DataStream from TwitterSource filtered by deleted tweets
     // filter for en tweets
-    DataStream<Tweet> twitterStream = env.addSource(twitterSource)
+    DataStream<String> twitterStream = env.addSource(twitterSource)
         .filter((FilterFunction<String>) value -> value.contains("created_at"))
         .flatMap(new TweetJsonConverter());
   }

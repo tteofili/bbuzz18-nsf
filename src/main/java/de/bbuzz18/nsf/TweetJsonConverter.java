@@ -6,7 +6,7 @@ import org.apache.flink.hadoop.shaded.org.codehaus.jackson.JsonNode;
 import org.apache.flink.hadoop.shaded.org.codehaus.jackson.map.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-public class TweetJsonConverter extends RichFlatMapFunction<String,Tweet> {
+public class TweetJsonConverter extends RichFlatMapFunction<String,String> {
   private transient ObjectMapper mapper;
 
   @Override
@@ -16,7 +16,7 @@ public class TweetJsonConverter extends RichFlatMapFunction<String,Tweet> {
   }
 
   @Override
-  public void flatMap(String value, Collector<Tweet> out) {
+  public void flatMap(String value, Collector<String> out) {
     String tweetString = null;
     JsonNode tweet = null;
 
@@ -28,8 +28,7 @@ public class TweetJsonConverter extends RichFlatMapFunction<String,Tweet> {
     }
 
     if (tweetString != null) {
-      out.collect(new Tweet(tweet.get("id").asText(), tweet.get("text").asText(),
-          tweet.get("lang").asText(), tweet.get("user").asText()));
+      out.collect(tweet.get("text").asText());
     }
   }
 }
