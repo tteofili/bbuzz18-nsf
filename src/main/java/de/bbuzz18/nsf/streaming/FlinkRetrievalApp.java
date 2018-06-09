@@ -1,21 +1,16 @@
 package de.bbuzz18.nsf.streaming;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import de.bbuzz18.nsf.streaming.functions.CommitFunction;
-import de.bbuzz18.nsf.streaming.functions.IndexFunction;
 import de.bbuzz18.nsf.streaming.functions.ModelAndIndexUpdateFunction;
-import de.bbuzz18.nsf.streaming.functions.ModelUpdateFunction;
 import de.bbuzz18.nsf.streaming.functions.MultiRetrieverFunction;
 import de.bbuzz18.nsf.streaming.functions.ResultTransformer;
 import de.bbuzz18.nsf.streaming.functions.SearcherFactoryFunction;
 import de.bbuzz18.nsf.streaming.functions.TupleEvictorFunction;
 import de.bbuzz18.nsf.streaming.functions.TweetJsonConverter;
 import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.io.CsvOutputFormat;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -25,7 +20,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
