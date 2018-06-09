@@ -49,7 +49,7 @@ public class ModelUpdateFunction implements AllWindowFunction<Tweet, Document, G
 
       // ingest vectors for current tweet
       document.add(new BinaryDocValuesField("pv", new BytesRef(paragraphVector.data().asBytes())));
-      INDArray averageWordVectors = averageWordVectors(Arrays.asList(tweet.getText().split(" ")), paragraphVectors.lookupTable());
+      INDArray averageWordVectors = averageWordVectors(paragraphVectors.getTokenizerFactory().create(tweet.getText()).getTokens(), paragraphVectors.lookupTable());
       document.add(new BinaryDocValuesField("vector", new BytesRef(averageWordVectors.data().asBytes())));
 
       collector.collect(document);
