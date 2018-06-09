@@ -2,6 +2,7 @@ package de.bbuzz18.nsf.streaming.functions;
 
 import java.util.Collection;
 
+import de.bbuzz18.nsf.streaming.CustomWriter;
 import de.bbuzz18.nsf.streaming.Tweet;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.GlobalWindow;
@@ -11,6 +12,9 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.util.BytesRef;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
@@ -21,17 +25,18 @@ import org.nd4j.linalg.factory.Nd4j;
 /**
  *
  */
-public class ModelUpdateFunction implements AllWindowFunction<Tweet, Document, GlobalWindow> {
+public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, IndexReader, GlobalWindow> {
 
   private final ParagraphVectors paragraphVectors;
 
-  public ModelUpdateFunction(ParagraphVectors paragraphVectors) {
+  public ModelAndIndexUpdateFunction(ParagraphVectors paragraphVectors) {
     this.paragraphVectors = paragraphVectors;
   }
 
   @Override
-  public void apply(GlobalWindow globalWindow, Iterable<Tweet> iterable, Collector<Document> collector) throws Exception {
+  public void apply(GlobalWindow globalWindow, Iterable<Tweet> iterable, Collector<IndexReader> collector) throws Exception {
     // for each tweet
+    IndexWriter writer = new CustomWriter();
     for (Tweet tweet : iterable) {
 
       // create lucene doc
@@ -56,9 +61,10 @@ public class ModelUpdateFunction implements AllWindowFunction<Tweet, Document, G
           System.err.println(tweet.getText() +" -> "+e.getLocalizedMessage());
         }
       }
-      collector.collect(document);
+      writer.addDocument(document);
     }
-
+    writer.commit();
+    collector.collect(DirectoryReader.open(writer));
   }
 
   private static INDArray averageWordVectors(Collection<String> words, WeightLookupTable lookupTable) {

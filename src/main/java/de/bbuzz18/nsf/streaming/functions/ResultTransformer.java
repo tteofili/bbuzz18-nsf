@@ -11,10 +11,10 @@ import org.apache.flink.api.java.tuple.Tuple2;
 /**
  *
  */
-public class ResultTransformer implements MapFunction<Map<String, String[]>, Collection<Tuple>> {
+public class ResultTransformer implements MapFunction<Map<String, String[]>, Collection<Tuple2<String,String>>> {
   @Override
-  public Collection<Tuple> map(Map<String, String[]> value) throws Exception {
-    Collection<Tuple> res = new LinkedList<>();
+  public Collection<Tuple2<String,String>> map(Map<String, String[]> value) throws Exception {
+    Collection<Tuple2<String,String>> res = new LinkedList<>();
 
     for (Map.Entry<String, String[]> entry : value.entrySet()) {
       StringBuilder resBuffer = new StringBuilder();

@@ -168,6 +168,10 @@
                                     <mainClass>de.bbuzz18.nsf.experiments.RetrievalExperimentsApp</mainClass>
                                     <name>exp</name>
                                 </program>
+                                <program>
+                                    <mainClass>de.bbuzz18.nsf.streaming.FlinkRetrievalApp</mainClass>
+                                    <name>stream</name>
+                                </program>
                             </programs>
                         </configuration>
                     </execution>

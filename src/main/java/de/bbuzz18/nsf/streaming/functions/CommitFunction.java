@@ -20,6 +20,8 @@ public class CommitFunction implements AllWindowFunction<Long, IndexReader, Glob
   @Override
   public void apply(GlobalWindow globalWindow, Iterable<Long> iterable, Collector<IndexReader> collector) throws Exception {
     writer.commit();
-    collector.collect(DirectoryReader.open(writer));
+    DirectoryReader reader = DirectoryReader.open(writer);
+    System.err.println("****"+reader.numDocs());
+    collector.collect(reader);
   }
 }
