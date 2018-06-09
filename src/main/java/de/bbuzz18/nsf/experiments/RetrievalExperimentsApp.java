@@ -1,4 +1,4 @@
-package de.bbuzz18.nsf;
+package de.bbuzz18.nsf.experiments;
 
 import java.io.BufferedReader;
 import java.io.File;

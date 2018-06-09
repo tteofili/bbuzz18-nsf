@@ -1,4 +1,4 @@
-package de.bbuzz18.nsf;
+package de.bbuzz18.nsf.streaming;
 
 import java.io.Serializable;
 import java.util.Objects;

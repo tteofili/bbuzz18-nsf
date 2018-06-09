@@ -1,12 +1,13 @@
-package de.bbuzz18.nsf;
+package de.bbuzz18.nsf.streaming.functions;
 
+import de.bbuzz18.nsf.streaming.Tweet;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.hadoop.shaded.org.codehaus.jackson.JsonNode;
 import org.apache.flink.hadoop.shaded.org.codehaus.jackson.map.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-public class TweetJsonConverter extends RichFlatMapFunction<String,String> {
+public class TweetJsonConverter extends RichFlatMapFunction<String,Tweet> {
   private transient ObjectMapper mapper;
 
   @Override
@@ -16,7 +17,7 @@ public class TweetJsonConverter extends RichFlatMapFunction<String,String> {
   }
 
   @Override
-  public void flatMap(String value, Collector<String> out) {
+  public void flatMap(String value, Collector<Tweet> out) {
     String tweetString = null;
     JsonNode tweet = null;
 
@@ -28,7 +29,8 @@ public class TweetJsonConverter extends RichFlatMapFunction<String,String> {
     }
 
     if (tweetString != null) {
-      out.collect(tweet.get("text").asText());
+      out.collect(new Tweet(tweet.get("id").asText(), tweet.get("text").asText(),
+          tweet.get("lang").asText(), tweet.get("user").asText()));
     }
   }
 }
