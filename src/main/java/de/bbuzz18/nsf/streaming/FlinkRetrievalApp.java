@@ -54,7 +54,6 @@ public class FlinkRetrievalApp {
   private static final Logger LOG = LoggerFactory.getLogger(FlinkRetrievalApp.class);
 
   private static ParagraphVectors paragraphVectors;
-  private static IndexWriter writer;
 
   private static void initializeModels() throws IOException {
     paragraphVectors = new ParagraphVectors.Builder()
@@ -70,9 +69,9 @@ public class FlinkRetrievalApp {
     initializeModels();
     Collection<Similarity> similarities = initializeSimilarities();
 
-    Directory directory = FSDirectory.open(Paths.get("targe/index"), NoLockFactory.INSTANCE);
+    Directory directory = FSDirectory.open(Paths.get("target/index"), NoLockFactory.INSTANCE);
     IndexWriterConfig conf = new IndexWriterConfig();
-    writer = new IndexWriter(directory, conf);
+    IndexWriter writer = new IndexWriter(directory, conf);
 
     final StreamExecutionEnvironment env =
         StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
@@ -80,7 +79,6 @@ public class FlinkRetrievalApp {
     env.getConfig().enableObjectReuse();
     env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
 
-    // twitter credentials and source
     Properties props = new Properties();
     props.load(FlinkRetrievalApp.class.getResourceAsStream("/twitter.properties"));
     TwitterSource twitterSource = new TwitterSource(props);
