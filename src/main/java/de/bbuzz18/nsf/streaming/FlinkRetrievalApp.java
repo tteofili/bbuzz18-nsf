@@ -1,13 +1,11 @@
 package de.bbuzz18.nsf.streaming;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 import de.bbuzz18.nsf.streaming.functions.ModelAndIndexUpdateFunction;
 import de.bbuzz18.nsf.streaming.functions.MultiRetrieverFunction;
 import de.bbuzz18.nsf.streaming.functions.ResultTransformer;
-import de.bbuzz18.nsf.streaming.functions.SearcherFactoryFunction;
 import de.bbuzz18.nsf.streaming.functions.TupleEvictorFunction;
 import de.bbuzz18.nsf.streaming.functions.TweetJsonConverter;
 import org.apache.flink.api.common.functions.FilterFunction;
@@ -20,10 +18,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.NoLockFactory;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareFileSentenceIterator;
@@ -42,14 +36,11 @@ public class FlinkRetrievalApp {
         .tokenizerFactory(tokenizerFactory)
         .trainWordVectors(true)
         .useUnknown(true)
-        .iterate(new LabelAwareFileSentenceIterator(new File("src/test/resources/data/text/abstracts.txt")))
+        .iterate(new LabelAwareFileSentenceIterator(new File("src/test/resources/data/text/bbuzz.txt")))
         .build();
     paragraphVectors.fit();
     WordVectorSerializer.writeParagraphVectors(paragraphVectors, "target/pv.zip");
     paragraphVectors.setTokenizerFactory(tokenizerFactory);
-
-    Directory directory = FSDirectory.open(Paths.get("target/index"), NoLockFactory.INSTANCE);
-    IndexWriterConfig conf = new IndexWriterConfig();
 
     final StreamExecutionEnvironment env =
         StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
@@ -66,7 +57,7 @@ public class FlinkRetrievalApp {
         .filter((FilterFunction<String>) value -> value.contains("created_at"))
         .flatMap(new TweetJsonConverter());
 
-    int batchSize = 1;
+    int batchSize = 10;
 
     Path path = new Path("src/main/html/data.csv");
     OutputFormat<Tuple2<String,String>> format = new CsvOutputFormat<>(path);
@@ -74,8 +65,7 @@ public class FlinkRetrievalApp {
         twitterStream
             .countWindowAll(batchSize)
             .apply(new ModelAndIndexUpdateFunction(paragraphVectors))
-        .map(new SearcherFactoryFunction(paragraphVectors))
-        .map(new MultiRetrieverFunction())
+        .map(new MultiRetrieverFunction(paragraphVectors))
         .map(new ResultTransformer()).countWindowAll(1)
             .apply(new TupleEvictorFunction())
             .writeUsingOutputFormat(format);

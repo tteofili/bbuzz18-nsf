@@ -1,5 +1,6 @@
 package de.bbuzz18.nsf.streaming.functions;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
 import de.bbuzz18.nsf.streaming.CustomWriter;
@@ -25,7 +26,7 @@ import org.nd4j.linalg.factory.Nd4j;
 /**
  *
  */
-public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, IndexReader, GlobalWindow> {
+public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Path, GlobalWindow> {
 
   private final ParagraphVectors paragraphVectors;
 
@@ -34,9 +35,9 @@ public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Ind
   }
 
   @Override
-  public void apply(GlobalWindow globalWindow, Iterable<Tweet> iterable, Collector<IndexReader> collector) throws Exception {
+  public void apply(GlobalWindow globalWindow, Iterable<Tweet> iterable, Collector<Path> collector) throws Exception {
     // for each tweet
-    IndexWriter writer = new CustomWriter();
+    CustomWriter writer = new CustomWriter();
     for (Tweet tweet : iterable) {
 
       // create lucene doc
@@ -55,7 +56,7 @@ public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Ind
           // ingest vectors for current tweet
           document.add(new BinaryDocValuesField("pv", new BytesRef(paragraphVector.data().asBytes())));
           INDArray averageWordVectors = averageWordVectors(paragraphVectors.getTokenizerFactory().create(tweet.getText()).getTokens(), paragraphVectors.lookupTable());
-          document.add(new BinaryDocValuesField("vector", new BytesRef(averageWordVectors.data().asBytes())));
+          document.add(new BinaryDocValuesField("wv", new BytesRef(averageWordVectors.data().asBytes())));
 
         } catch (Exception e) {
           System.err.println(tweet.getText() +" -> "+e.getLocalizedMessage());
@@ -64,7 +65,8 @@ public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Ind
       writer.addDocument(document);
     }
     writer.commit();
-    collector.collect(DirectoryReader.open(writer));
+    writer.close();
+    collector.collect(writer.getPath());
   }
 
   private static INDArray averageWordVectors(Collection<String> words, WeightLookupTable lookupTable) {

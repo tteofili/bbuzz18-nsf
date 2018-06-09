@@ -3,8 +3,8 @@ package de.bbuzz18.nsf.streaming.functions;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import lucene4ir.similarity.ParagraphVectorsSimilarity;
-import lucene4ir.similarity.WordEmbeddingsSimilarity;
+import de.bbuzz18.nsf.streaming.similarities.ParagraphVectorsSimilarity;
+import de.bbuzz18.nsf.streaming.similarities.WordEmbeddingsSimilarity;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
