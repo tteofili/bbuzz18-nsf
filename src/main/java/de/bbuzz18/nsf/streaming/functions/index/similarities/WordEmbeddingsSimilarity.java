@@ -1,11 +1,10 @@
-package de.bbuzz18.nsf.streaming.similarities;
+package de.bbuzz18.nsf.streaming.functions.index.similarities;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import lucene4ir.Lucene4IRConstants;
 import lucene4ir.similarity.VectorizeUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FieldInvertState;
@@ -23,31 +22,16 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**
- *
+ * a dummy Lucene {@link Similarity} based on {@link Word2Vec}
  */
 public class WordEmbeddingsSimilarity extends Similarity {
 
-  public enum Smoothing {
-    MEAN,
-    IDF,
-    TF,
-    TF_IDF
-  }
-
   private final Word2Vec word2Vec;
   private final String fieldName;
-  private final Smoothing smoothing;
-
-  public WordEmbeddingsSimilarity(Word2Vec word2Vec, String fieldName, Smoothing smoothing) {
-    this.word2Vec = word2Vec;
-    this.fieldName = fieldName;
-    this.smoothing = smoothing;
-  }
 
   public WordEmbeddingsSimilarity(Word2Vec word2Vec, String fieldName) {
     this.word2Vec = word2Vec;
     this.fieldName = fieldName;
-    this.smoothing = Smoothing.MEAN;
   }
 
   @Override
@@ -98,7 +82,7 @@ public class WordEmbeddingsSimilarity extends Similarity {
         if (document != null && (bytesRef = document.getBinaryValue("wv")) != null) {
           denseDocumentVector = Nd4j.fromByteArray(bytesRef.bytes);
         } else {
-          denseDocumentVector = toDenseAverageVector(reader.getTermVector(doc, fieldName), reader.numDocs(), word2Vec, smoothing);
+          denseDocumentVector = toDenseAverageVector(reader.getTermVector(doc, fieldName), reader.numDocs(), word2Vec);
         }
         return (float) Transforms.cosineSim(denseQueryVector, denseDocumentVector);
       } catch (IOException e) {
@@ -146,8 +130,7 @@ public class WordEmbeddingsSimilarity extends Similarity {
     }
   }
 
-  private static INDArray toDenseAverageVector(Terms docTerms, double n, Word2Vec word2Vec,
-                                               WordEmbeddingsSimilarity.Smoothing smoothing) throws IOException {
+  private static INDArray toDenseAverageVector(Terms docTerms, double n, Word2Vec word2Vec) throws IOException {
     INDArray vector = Nd4j.zeros(word2Vec.getLayerSize());
     if (docTerms != null) {
       TermsEnum docTermsEnum = docTerms.iterator();
@@ -155,27 +138,7 @@ public class WordEmbeddingsSimilarity extends Similarity {
       while ((term = docTermsEnum.next()) != null) {
         INDArray wordVector = word2Vec.getLookupTable().vector(term.utf8ToString());
         if (wordVector != null) {
-          long termFreq = docTermsEnum.totalTermFreq();
-          int docFreq = docTermsEnum.docFreq();
-
-          double smooth;
-          switch (smoothing) {
-            case MEAN:
-              smooth = docTerms.size();
-              break;
-            case TF:
-              smooth = termFreq;
-              break;
-            case IDF:
-              smooth = docFreq;
-              break;
-            case TF_IDF:
-              smooth = VectorizeUtils.tfIdf(n, termFreq, docFreq);
-              break;
-            default:
-              smooth = docTerms.size();
-          }
-          vector.addi(wordVector.div(smooth));
+          vector.addi(wordVector.div(docTerms.size()));
         }
       }
     }

@@ -1,13 +1,14 @@
-package de.bbuzz18.nsf.streaming.functions;
+package de.bbuzz18.nsf.streaming;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.bbuzz18.nsf.streaming.functions.Utils;
 import de.bbuzz18.nsf.streaming.functions.index.similarities.ParagraphVectorsSimilarity;
 import de.bbuzz18.nsf.streaming.functions.index.similarities.WordEmbeddingsSimilarity;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -30,16 +31,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class MultiRetrieverFunction implements MapFunction<Long, Map<String, String[]>> {
+public class OutputApp {
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(OutputApp.class);
 
-  @Override
-  public Map<String, String[]> map(Long commit) throws Exception {
-
+  public static void main(String[] args) throws Exception {
     Path indexPath = Utils.getIndexPath();
     ParagraphVectors paragraphVectors = Utils.fetchVectors(indexPath);
-    log.info("fetched {} labels", paragraphVectors.getLabelsSource().size());
 
     String fieldName = "text";
 
@@ -58,8 +56,6 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
 
     IndexReader reader3 = DirectoryReader.open(directory);
     IndexSearcher pv = new IndexSearcher(reader3);
-
-    paragraphVectors.setTokenizerFactory(new DefaultTokenizerFactory());
     pv.setSimilarity(new ParagraphVectorsSimilarity(paragraphVectors, fieldName));
     searchers.put("document embedding ranking", pv);
 
@@ -68,8 +64,14 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
     lmd.setSimilarity(new LMDirichletSimilarity());
     searchers.put("language model dirichlet", lmd);
 
+    IndexReader reader5 = DirectoryReader.open(directory);
+//    IndexSearcher wv = new IndexSearcher(reader5);
+//    wv.setSimilarity(new WordEmbeddingsSimilarity(paragraphVectors, fieldName));
+//    searchers.put("word embedding ranking", wv);
+
+
     Map<String, String[]> results = new HashMap<>();
-    int topK = 1;
+    int topK = 3;
     QueryParser simpleQueryParser = new QueryParser(fieldName, new StandardAnalyzer());
     String queryText = "\"berlin buzzwords\" \"relevant search\" \"deep learning\" \"neural search\"";
     for (Map.Entry<String, IndexSearcher> entry : searchers.entrySet()) {
@@ -87,8 +89,7 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
         }
         i++;
       }
-      results.put(entry.getKey(), stringResults);
-      log.info("{} - {}", entry.getKey(), topDocs.getMaxScore());
+      results.put(entry.getKey() + " (" + topDocs.getMaxScore() + ")", stringResults);
 
     }
 
@@ -96,7 +97,10 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
     reader2.close();
     reader3.close();
     reader4.close();
+    reader5.close();
     directory.close();
-    return results;
+    for (Map.Entry<String, String[]> entry : results.entrySet()) {
+      log.info("{}:{}", entry.getKey(), Arrays.toString(entry.getValue()));
+    }
   }
 }

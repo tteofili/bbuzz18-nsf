@@ -172,6 +172,10 @@
                                     <mainClass>de.bbuzz18.nsf.streaming.FlinkRetrievalApp</mainClass>
                                     <name>stream</name>
                                 </program>
+                                <program>
+                                    <mainClass>de.bbuzz18.nsf.streaming.OutputApp</mainClass>
+                                    <name>res</name>
+                                </program>
                             </programs>
                         </configuration>
                     </execution>

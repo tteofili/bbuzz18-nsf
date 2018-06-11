@@ -3,8 +3,8 @@
     <indexName>index</indexName>
     <queryFile>data/cacm/title.query</queryFile>
     <maxResults>10</maxResults>
-    <model>pv</model>
-    <resultFile>data/cacm/pv.res</resultFile>
+    <model>dfr</model>
+    <resultFile>data/cacm/dfr.res</resultFile>
     <tokenFilterFile>src/test/resources/params/analysis/simple.xml</tokenFilterFile>
-    <runTag>pv</runTag>
+    <runTag>dfr</runTag>
 </retrievalParams>

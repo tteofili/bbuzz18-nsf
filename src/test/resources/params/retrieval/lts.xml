@@ -2,9 +2,9 @@
 <retrievalParams>
     <indexName>index</indexName>
     <queryFile>data/cacm/title.query</queryFile>
-    <maxResults>100</maxResults>
-    <model>wv</model>
-    <resultFile>data/cacm/wv.res</resultFile>
+    <maxResults>10</maxResults>
+    <model>lts</model>
+    <resultFile>data/cacm/lts.res</resultFile>
     <tokenFilterFile>src/test/resources/params/analysis/simple.xml</tokenFilterFile>
-    <runTag>wv</runTag>
+    <runTag>lts</runTag>
 </retrievalParams>

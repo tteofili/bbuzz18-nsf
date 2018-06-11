@@ -1,4 +1,4 @@
-package de.bbuzz18.nsf.streaming.similarities;
+package de.bbuzz18.nsf.streaming.functions.index.similarities;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**
- * a Lucene {@link Similarity} based on {@link ParagraphVectors}
+ * a dummy Lucene {@link Similarity} based on {@link ParagraphVectors}
  */
 public class ParagraphVectorsSimilarity extends Similarity {
 
@@ -81,9 +81,6 @@ public class ParagraphVectorsSimilarity extends Similarity {
           LabelledDocument document = new LabelledDocument();
           document.setLabels(Collections.singletonList(label));
           document.setContent(reader.document(adoc).getField(fieldName).stringValue());
-          if (paragraphVectors.getTokenizerFactory() == null) {
-            paragraphVectors.setTokenizerFactory(new DefaultTokenizerFactory());
-          }
           documentParagraphVector = paragraphVectors.inferVector(document);
         }
         return (float) Transforms.cosineSim(denseQueryVector, documentParagraphVector);

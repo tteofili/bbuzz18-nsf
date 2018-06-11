@@ -1,4 +1,4 @@
-package de.bbuzz18.nsf.streaming;
+package de.bbuzz18.nsf.streaming.functions.index;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -16,11 +16,15 @@ public class CustomWriter extends IndexWriter implements Serializable {
   private IndexWriterConfig iwConfig;
 
   public CustomWriter() throws IOException {
-    this(FSDirectory.open(Paths.get("target/index"), NoLockFactory.INSTANCE), new IndexWriterConfig());
+    this(FSDirectory.open(Paths.get("stream_index"), NoLockFactory.INSTANCE), new IndexWriterConfig());
   }
 
-  CustomWriter(Directory dir, IndexWriterConfig iwConf) throws IOException {
+  private CustomWriter(Directory dir, IndexWriterConfig iwConf) throws IOException {
     super(dir, iwConf);
+  }
+
+  public CustomWriter(Path path) throws IOException {
+    this(FSDirectory.open(path), new IndexWriterConfig());
   }
 
   public Directory getDirectory() {
@@ -40,6 +44,6 @@ public class CustomWriter extends IndexWriter implements Serializable {
   }
 
   public Path getPath() {
-    return Paths.get("target/index");
+    return Paths.get("stream_index");
   }
 }

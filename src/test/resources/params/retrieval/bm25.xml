@@ -2,7 +2,7 @@
 <retrievalParams>
     <indexName>index</indexName>
     <queryFile>data/cacm/title.query</queryFile>
-    <maxResults>100</maxResults>
+    <maxResults>10</maxResults>
     <model>bm25</model>
     <b>0.75</b>
     <resultFile>data/cacm/bm25.res</resultFile>

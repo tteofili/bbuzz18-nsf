@@ -2,7 +2,7 @@
 <retrievalParams>
     <indexName>index</indexName>
     <queryFile>data/cacm/title.query</queryFile>
-    <maxResults>100</maxResults>
+    <maxResults>10</maxResults>
     <model>classic</model>
     <resultFile>data/cacm/classic.res</resultFile>
     <tokenFilterFile>src/test/resources/params/analysis/simple.xml</tokenFilterFile>
