@@ -1,0 +1,10 @@
+retrieval,ndcg,
+pv+lmd,0.4891
+wv+bm25,0.4229
+wv+lmd,0.4073
+pv+classic,0.4011
+wv+classic,0.3973
+pv+bm25,0.3991
+bm25+lmd,0.3927
+classic+lmd,0.3698
+classic+bm25,0.3698

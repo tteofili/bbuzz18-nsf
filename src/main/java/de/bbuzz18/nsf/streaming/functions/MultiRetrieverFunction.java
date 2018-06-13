@@ -1,6 +1,7 @@
 package de.bbuzz18.nsf.streaming.functions;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,6 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
 
     Path indexPath = Utils.getIndexPath();
     ParagraphVectors paragraphVectors = Utils.fetchVectors(indexPath);
-    log.info("fetched {} labels", paragraphVectors.getLabelsSource().size());
 
     String fieldName = "text";
 
@@ -71,7 +71,7 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
     Map<String, String[]> results = new HashMap<>();
     int topK = 1;
     QueryParser simpleQueryParser = new QueryParser(fieldName, new StandardAnalyzer());
-    String queryText = "\"berlin buzzwords\" \"relevant search\" \"deep learning\" \"neural search\"";
+    String queryText = "berlin buzzwords talk about neural search frontier";
     for (Map.Entry<String, IndexSearcher> entry : searchers.entrySet()) {
       Query query = simpleQueryParser.parse(queryText);
       log.debug("running query '{}' for {}", query.toString(), entry.getKey());
@@ -88,8 +88,7 @@ public class MultiRetrieverFunction implements MapFunction<Long, Map<String, Str
         i++;
       }
       results.put(entry.getKey(), stringResults);
-      log.info("{} - {}", entry.getKey(), topDocs.getMaxScore());
-
+      log.info("{} - {}", entry.getKey(), Arrays.toString(stringResults));
     }
 
     reader1.close();

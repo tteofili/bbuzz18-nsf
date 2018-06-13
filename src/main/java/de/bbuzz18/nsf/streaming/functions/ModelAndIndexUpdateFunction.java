@@ -26,22 +26,10 @@ import org.slf4j.LoggerFactory;
 public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Long, GlobalWindow> {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-//  private final LabelsSource labelsSource;
-//
-//  public ModelAndIndexUpdateFunction(LabelsSource labelsSource) {
-//    this.labelsSource = labelsSource;
-//  }
 
   @Override
   public void apply(GlobalWindow globalWindow, Iterable<Tweet> iterable, Collector<Long> collector) throws Exception {
-//    ParagraphVectors paragraphVectors = WordVectorSerializer.readParagraphVectors("pv.zip");
-//    for (String l : labelsSource.getLabels()) {
-//      paragraphVectors.getLabelsSource().storeLabel(l);
-//    }
-//    paragraphVectors.setTokenizerFactory(new DefaultTokenizerFactory());
     ParagraphVectors paragraphVectors = Utils.fetchVectors();
-//    Map<String, INDArray> newPVs = new HashMap<>();
-    // for each tweet
     CustomWriter writer = new CustomWriter();
     for (Tweet tweet : iterable) {
 
@@ -57,7 +45,6 @@ public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Lon
         try {
           INDArray paragraphVector = paragraphVectors.inferVector(tweet.getText());
           log.debug("learned pv for {}", tweet.getId());
-//          newPVs.put(tweet.getId(), paragraphVector);
 
           // ingest vectors for current tweet
           document.add(new BinaryDocValuesField("pv", new BytesRef(paragraphVector.data().asBytes())));
@@ -73,27 +60,6 @@ public class ModelAndIndexUpdateFunction implements AllWindowFunction<Tweet, Lon
     long commit = writer.commit();
     log.info("Lucene index updated ({})", commit);
 
-//    DirectoryReader reader = DirectoryReader.open(writer);
-//    IndexSearcher searcher = new IndexSearcher(reader);
-//    int i = 0;
-//    for (Tweet t : iterable) {
-//      if (newPVs.containsKey(t.getId())) {
-//        Query q = new TermQuery(new Term("id", t.getId()));
-//        TopDocs topDocs = searcher.search(q, 1);
-//        for (ScoreDoc sd : topDocs.scoreDocs) {
-//          String label = "doc_" + sd.doc;
-//          paragraphVectors.getLookupTable().putVector(label, newPVs.get(t.getId()));
-//          paragraphVectors.getLabelsSource().storeLabel(label);
-//          i++;
-//        }
-//      }
-//    }
-//    log.info("{} embeddings updated", i);
-//
-//    WordVectorSerializer.writeParagraphVectors(paragraphVectors, "pv.zip");
-//    Models models = new Models(writer.getPath(), paragraphVectors, paragraphVectors.getLabelsSource());
-
-//    reader.close();
     writer.close();
 
     collector.collect(commit);
